@@ -28,7 +28,7 @@ const byte cols_max = 8; // sets the number of columns in the matrix
 // Load the normal key matrix with the Teensyduino key names 
 // described at www.pjrc.com/teensy/td_keyboard.html 
 // A zero indicates no normal key at that location.
-int normal[rows_max][cols_max] = {
+unsigned int normal[rows_max][cols_max] = {
   {KEYPAD_7,KEYPAD_PLUS,KEYPAD_9,KEYPAD_2,KEYPAD_3,KEYPAD_1,KEYPAD_ENTER,KEYPAD_8},
   {KEYPAD_SLASH,KEYPAD_6,KEYPAD_MINUS,KEYPAD_5,KEYPAD_PERIOD,KEYPAD_4,KEYPAD_0,KEYPAD_ASTERIX},
   {KEY_DELETE,KEY_PAGE_UP,KEY_HOME,KEY_END,KEY_PAGE_DOWN,KEY_RIGHT,KEY_LEFT,KEY_INSERT},
@@ -50,7 +50,7 @@ int normal[rows_max][cols_max] = {
 };
 // Load the modifier key matrix with key names at the correct row-column location. 
 // A zero indicates no modifier key at that location.
-int modifier[rows_max][cols_max] = {
+unsigned int modifier[rows_max][cols_max] = {
   {0,0,0,0,0,0,0,0},
   {0,0,0,0,0,0,0,0},
   {0,0,0,0,0,0,0,0},
@@ -72,7 +72,7 @@ int modifier[rows_max][cols_max] = {
 };
 // Load the media key matrix with Fn key names at the correct row-column location. 
 // A zero indicates no media key at that location.
-int media[rows_max][cols_max] = {
+unsigned int media[rows_max][cols_max] = {
   {0,0,0,0,0,0,0,0},
   {0,0,0,0,0,0,0,0},
   {0,KEY_PAUSE,KEY_PRINTSCREEN,0,0,0,0,KEY_SCROLL_LOCK},
