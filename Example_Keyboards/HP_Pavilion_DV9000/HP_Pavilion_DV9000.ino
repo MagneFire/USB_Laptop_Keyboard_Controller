@@ -175,19 +175,19 @@ void clear_slot(int key) {
   if (slot1 == key) {
     slot1 = 0;
   }
-  else if (slot2 == key) {
+  if (slot2 == key) {
     slot2 = 0;
   }
-  else if (slot3 == key) {
+  if (slot3 == key) {
     slot3 = 0;
   }
-  else if (slot4 == key) {
+  if (slot4 == key) {
     slot4 = 0;
   }
-  else if (slot5 == key) {
+  if (slot5 == key) {
     slot5 = 0;
   }
-  else if (slot6 == key) {
+  if (slot6 == key) {
     slot6 = 0;
   }
   if (!slot1 || !slot2 || !slot3 || !slot4 || !slot5 || !slot6)  {
@@ -320,28 +320,24 @@ void loop() {
     go_0(Row_IO[x]); // Activate Row (send it low)
     delayMicroseconds(10); // give the row time to go low and settle out
     for (int y = 0; y < cols_max; y++) {   // loop thru the columns
+      boolean key_pressed = digitalRead(Col_IO[y]);
 // **********Modifier keys including the Fn special case
-      if (modifier[x][y] != 0) {  // check if modifier key exists at this location in the array (a non-zero value)
-        if (!digitalRead(Col_IO[y]) && (old_key[x][y])) {  // Read column to see if key is low (pressed) and was previously not pressed
+      if (modifier[x][y] != 0) {  // check if modifier key exists at this location in the array (a non-zero key_pressedue)
+        if (!key_pressed && (old_key[x][y])) {  // Read column to see if key is low (pressed) and was previously not pressed
+          old_key[x][y] = LOW; // Save state of key as "pressed"
           if (modifier[x][y] != MODIFIERKEY_FN) {   // Exclude Fn modifier key  
             load_mod(modifier[x][y]); // function reads which modifier key is pressed and loads it into the appropriate mod_... variable   
             send_mod(); // function sends the state of all modifier keys over usb including the one that just got pressed
-            old_key[x][y] = LOW; // Save state of key as "pressed"
-          }
-          else {   
+          } else {
             Fn_pressed = LOW; // Fn status variable is active low
-            old_key[x][y] = LOW; // old_key state is "pressed" (active low)
           }
-        }
-        else if (digitalRead(Col_IO[y]) && (!old_key[x][y])) {  //check if key is not pressed and was previously pressed
+        } else if (key_pressed && (!old_key[x][y])) {  //check if key is not pressed and was previously pressed
+          old_key[x][y] = HIGH; // Save state of key as "not pressed"
           if (modifier[x][y] != MODIFIERKEY_FN) { // Exclude Fn modifier key 
             clear_mod(modifier[x][y]); // function reads which modifier key was released and loads 0 into the appropriate mod_... variable
             send_mod(); // function sends all mod's over usb including the one that just released
-            old_key[x][y] = HIGH; // Save state of key as "not pressed"
-          }
-          else {
+          } else {
             Fn_pressed = HIGH; // Fn is no longer active
-            old_key[x][y] = HIGH; // old_key state is "not pressed" 
           }
         }
       } 
@@ -349,24 +345,23 @@ void loop() {
 //
 // ***********Normal keys and media keys in this section
       else if ((normal[x][y] != 0) || (media[x][y] != 0)) {  // check if normal or media key exists at this location in the array
-        if (!digitalRead(Col_IO[y]) && (old_key[x][y]) && (!slots_full)) { // check if key pressed and not previously pressed and slots not full
+        if (!key_pressed && (old_key[x][y]) && (!slots_full)) { // check if key pressed and not previously pressed and slots not full
           old_key[x][y] = LOW; // Save state of key as "pressed"
           if (Fn_pressed) {  // Fn_pressed is active low so it is not pressed and normal key needs to be sent
             load_slot(normal[x][y]); //update first available slot with normal key name
-            send_normals(); // send all slots over USB including the key that just got pressed
+          } else if (media[x][y] != 0) { // Fn is pressed so send media if a key exists in the matrix
+            load_slot(media[x][y]); //update first available slot with media key name
           }
-          else if (media[x][y] != 0) { // Fn is pressed so send media if a key exists in the matrix
-            Keyboard.press(media[x][y]); // media key is sent using keyboard press function per PJRC    
-            delay(5); // delay 5 milliseconds before releasing to make sure it gets sent over USB
-            Keyboard.release(media[x][y]); // send media key release
-          }
+          send_normals(); // send all slots over USB including the key that just got pressed
         }          
-        else if (digitalRead(Col_IO[y]) && (!old_key[x][y])) { //check if key is not pressed, but was previously pressed 
+        else if (key_pressed && (!old_key[x][y])) { //check if key is not pressed, but was previously pressed
           old_key[x][y] = HIGH; // Save state of key as "not pressed"
           if (Fn_pressed) {  // Fn is not pressed
             clear_slot(normal[x][y]); //clear the slot that contains the normal key name
-            send_normals(); // send all slots over USB including the key that was just released 
+          } else if (media[x][y] != 0) {
+            clear_slot(media[x][y]); //clear the slot that contains the media key name
           }
+          send_normals(); // send all slots over USB including the key that was just released
         }
       } 
 // **************end of normal and media key section 
