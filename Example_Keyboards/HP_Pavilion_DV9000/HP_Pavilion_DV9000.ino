@@ -350,7 +350,11 @@ void loop() {
           if (Fn_pressed) {  // Fn_pressed is active low so it is not pressed and normal key needs to be sent
             load_slot(normal[x][y]); //update first available slot with normal key name
           } else if (media[x][y] != 0) { // Fn is pressed so send media if a key exists in the matrix
-            load_slot(media[x][y]); //update first available slot with media key name
+            if (media[x][y] >= 0xE400 && media[x][y] <= 0xE7FF) { // The key is a media key (play/volume/next).
+              Keyboard.set_media(media[x][y]);
+            } else { // Just a regular key, use a key slot for this.
+              load_slot(media[x][y]); //update first available slot with media key name
+            }
           }
           send_normals(); // send all slots over USB including the key that just got pressed
         }          
@@ -359,7 +363,11 @@ void loop() {
           if (Fn_pressed) {  // Fn is not pressed
             clear_slot(normal[x][y]); //clear the slot that contains the normal key name
           } else if (media[x][y] != 0) {
-            clear_slot(media[x][y]); //clear the slot that contains the media key name
+            if (media[x][y] >= 0xE400 && media[x][y] <= 0xE7FF) { // The key is a media key (play/volume/next).
+              Keyboard.set_media(0);
+            } else { // Just a regular key, use a key slot for this.
+              clear_slot(media[x][y]); //clear the slot that contains the media key name
+            }
           }
           send_normals(); // send all slots over USB including the key that was just released
         }
